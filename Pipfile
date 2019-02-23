@@ -10,7 +10,10 @@ tensorflow = "*"
 keras = "*"
 numpy = "*"
 pylint = "*"
+<<<<<<< HEAD
 pandas = "*"
+=======
+>>>>>>> a3a97b9218783e98497bf167faa3481d88c8a32e
 
 [requires]
 python_version = "3.6"

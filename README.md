@@ -49,7 +49,7 @@ pipenv, version 2018.11.26
 ### Libraries
 
 `> cd path/to/project`
-`> pipenv sync`
+`> pipenv lock && pipenv sync`
 
 ## Run project
 
@@ -59,3 +59,6 @@ pipenv, version 2018.11.26
 
 Security checks
 `> pipenv check`
+
+pylint
+`> pylint src/main.py`
