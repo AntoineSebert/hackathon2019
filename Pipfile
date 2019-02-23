@@ -9,6 +9,7 @@ verify_ssl = true
 tensorflow = "*"
 keras = "*"
 numpy = "*"
+pylint = "*"
 
 [requires]
 python_version = "3.6"
