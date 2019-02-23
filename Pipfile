@@ -11,6 +11,7 @@ keras = "*"
 numpy = "*"
 pylint = "*"
 scikit-learn = "*"
+pandas = "*"
 
 [requires]
 python_version = "3.6"
