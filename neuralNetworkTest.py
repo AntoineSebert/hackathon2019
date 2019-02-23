@@ -1,12 +1,12 @@
 import numpy as np
-import keras
-import tensoflow
-#from keras.datasets import imdb
-#from keras.models import Sequential
-#from keras.layers import Dense
-#from keras.layers import LSTM
-#from keras.layers.embeddings import Embedding
-#from keras.preprocessing import sequence
+#import keras
+#import tensorflow
+from keras.datasets import imdb
+from keras.models import Sequential
+from keras.layers import Dense
+from keras.layers import LSTM
+from keras.layers.embeddings import Embedding
+from keras.preprocessing import sequence
 
 # fix random seed for reproducibility
 np.random.seed(1337)
@@ -44,7 +44,7 @@ batch_size = 64
 
 
 model = create_model(top_words, max_review_length, embedding_size)
-model.compile(loss=loss, 
+model.compile(loss=loss,
               optimizer=optimizer,
               metrics=[metrics])
 
