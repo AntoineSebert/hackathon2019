@@ -1,12 +1,12 @@
 # hackathon2019
 
-## Toolchain
+## Prerequisites
 
-## Python
+### Python
 
 version : [3.6.8](https://www.python.org/downloads/release/python-368/)
 
-### Checking
+#### Checking
 
 To check the installation & version :
 ```
@@ -14,13 +14,13 @@ To check the installation & version :
 Python 3.6.8
 ```
 
-## pip
+### pip
 
-### Installation/Upgrade
+#### Installation/Upgrade
 
 https://pip.pypa.io/en/stable/installing/
 
-### Checking
+#### Checking
 
 To check the installation & version :
 ```
@@ -28,17 +28,17 @@ To check the installation & version :
 pip 19.0.3
 ```
 
-### Python Packages Index
+#### Python Packages Index
 
 https://pypi.org/
 
-## Development Workflow
+### Development Workflow
 
-### Installation/Upgrade
+#### Installation/Upgrade
 
 https://pipenv.readthedocs.io/en/latest/install/
 
-### Checking
+#### Checking
 
 To check the installation & version :
 ```
@@ -46,7 +46,16 @@ To check the installation & version :
 pipenv, version 2018.11.26
 ```
 
-## Libraries
+### Libraries
 
 `> cd path/to/project`
-`> pipenv install tensorflow keras numpy`
+`> pipenv sync`
+
+## Run project
+
+`> python src/main.py`
+
+## Other commands
+
+Security checks
+`> pipenv check`
