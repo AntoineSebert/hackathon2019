@@ -10,6 +10,7 @@ tensorflow = "*"
 keras = "*"
 numpy = "*"
 pylint = "*"
+scikit-learn = "*"
 pandas = "*"
 
 [requires]
