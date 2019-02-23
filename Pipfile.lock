@@ -1,11 +1,7 @@
 {
     "_meta": {
         "hash": {
-<<<<<<< HEAD
             "sha256": "50ddfbbfe46619793152cb08064df471f7be46680515b84d0ce3f3f046b433cf"
-=======
-            "sha256": "5d61ed49e12ca728575ff8a62be246624d677f5a5bd56ac66f0bf249a85d9198"
->>>>>>> a3a97b9218783e98497bf167faa3481d88c8a32e
         },
         "pipfile-spec": 6,
         "requires": {
@@ -274,7 +270,6 @@
             ],
             "version": "==3.6.1"
         },
-<<<<<<< HEAD
         "python-dateutil": {
             "hashes": [
                 "sha256:7e6584c74aeed623791615e26efd690f29817a27c73085b78e4bad02493df2fb",
@@ -288,15 +283,6 @@
                 "sha256:d5f05e487007e29e03409f9398d074e158d920d36eb82eaf66fb1136b0c5374c"
             ],
             "version": "==2018.9"
-=======
-        "pylint": {
-            "hashes": [
-                "sha256:689de29ae747642ab230c6d37be2b969bf75663176658851f456619aacf27492",
-                "sha256:771467c434d0d9f081741fec1d64dfb011ed26e65e12a28fe06ca2f61c4d556c"
-            ],
-            "index": "pypi",
-            "version": "==2.2.2"
->>>>>>> a3a97b9218783e98497bf167faa3481d88c8a32e
         },
         "pyyaml": {
             "hashes": [
