@@ -1,6 +1,9 @@
 """This module generates stories from sample using deep learning."""
 
 import argparse
+import numpy
+import tensorflow
+import keras
 
 def get_input_file():
 	"""Get the filepath from the command line."""
@@ -20,12 +23,15 @@ def get_input_file():
 
 def load_data(file):
 	"""Extract the data from the file and return it as a list of objects."""
+	"""
 	for line in iter(lambda: file.readline(), ''):
 		print(line)
+	"""
 	return []
 
 def create_neural_network():
 	"""Create a neural network that takes a dataset of texts as input and generates texts based on the dataset."""
+	a = numpy.arange(15).reshape(3, 5)
 	return {}
 
 def train_neural_network(neural_network):
