@@ -9,7 +9,7 @@ def get_input_file():
 		"-f",
 		"--file",
 		nargs = '?',
-		default = '../dataset/booksummaries/booksummaries.txt',
+		default = 'dataset/medium-articles/train.json',
 		type = argparse.FileType('r'),
 		required = True,
 		dest = "file",
@@ -20,6 +20,8 @@ def get_input_file():
 
 def load_data(file):
 	"""Extract the data from the file and return it as a list of objects."""
+	for line in iter(lambda: file.readline(), ''):
+		print(line)
 	return []
 
 def create_neural_network():
@@ -38,6 +40,7 @@ def main():
 	print('hello world')
 
 	file = get_input_file()
+	print(file)
 	dataset = load_data(file)
 	neural_network = create_neural_network()
 	train_neural_network(neural_network)
