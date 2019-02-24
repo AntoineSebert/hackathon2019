@@ -1,7 +1,11 @@
 """This module generates stories from sample using deep learning."""
 
 import argparse
+
 import json
+from html.parser import HTMLParser
+from html.entities import name2codepoint
+
 import numpy as np
 from keras.datasets import reuters
 from keras.models import Sequential
@@ -27,6 +31,24 @@ class article:
 	def __init__(self, html_content):
 		self.content = html_content
 
+class MyHTMLParser(HTMLParser):
+	def __init__(self):
+		HTMLParser.__init__(self)
+		self.recording = 0
+		self.data = []
+	def handle_starttag(self, tag, attrs):
+		for attr in attrs:
+			print("     attr:", attr)
+		if tag == 'p':
+			print("Start tag:", tag)
+			return
+	def handle_endtag(self, tag):
+		if tag == 'p':
+			print("End tag  :", tag)
+			return
+	def handle_data(self, data):
+		print("Data     :", data)
+
 def get_input_file():
 	"""Get the filepath from the command line."""
 	parser = argparse.ArgumentParser(description = 'Generate texts from text datatset.')
@@ -47,9 +69,14 @@ def get_input_file():
 def load_data(file):
 	"""Extract the data from the file and return it as a list of objects."""
 	articles = []
+	parser = MyHTMLParser()
 
 	for line in iter(lambda: file.readline(), ''):
-		articles.append(articl(json.loads(line)["content"]))
+		article_as_json = json.loads(line)
+		parser.feed(article_as_json["content"])
+		print(parser.data)
+		print()
+		#articles.append(article())
 
 	return articles
 
