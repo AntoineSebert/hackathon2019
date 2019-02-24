@@ -1,13 +1,15 @@
 """This module generates stories from sample using deep learning."""
 
 import argparse
+import json
 import numpy as np
-from keras.datasets import imdb
+from keras.datasets import reuters
 from keras.models import Sequential
 from keras.layers import Dense
 from keras.layers import LSTM
 from keras.layers.embeddings import Embedding
 from keras.preprocessing import sequence
+from keras.preprocessing import text
 
 class datasets_group:
 	x_train = {}
@@ -19,6 +21,11 @@ class datasets_group:
 		self.y_train = y_train
 		self.x_test = x_test
 		self.y_test = y_test
+
+class article:
+	content = ""
+	def __init__(self, html_content):
+		self.content = html_content
 
 def get_input_file():
 	"""Get the filepath from the command line."""
@@ -39,18 +46,25 @@ def get_input_file():
 
 def load_data(file):
 	"""Extract the data from the file and return it as a list of objects."""
-	"""
-	for line in iter(lambda: file.readline(), ''):
-		print(line)
-	"""
+	articles = []
 
-	return []
+	for line in iter(lambda: file.readline(), ''):
+		articles.append(articl(json.loads(line)["content"]))
+
+	return articles
 
 def create_datasets(raw_data, top_words, max_review_length):
 	"""Create the train and test datasets, each entry being limited in length."""
-	(x_train, y_train), (x_test, y_test) = imdb.load_data(num_words = top_words)
+
+	# to replace
+	(x_train, y_train), (x_test, y_test) = reuters.load_data(num_words = top_words)
+	# iterate through list of articles and get their content
+	#x_train = text.text_to_word_sequence(x_train)
+	#x_test = text.text_to_word_sequence(x_test)
 	x_train = sequence.pad_sequences(x_train, maxlen = max_review_length)
 	x_test = sequence.pad_sequences(x_test, maxlen = max_review_length)
+
+	# https://keras.io/preprocessing/text/
 
 	return datasets_group(x_train, y_train, x_test, y_test)
 
@@ -61,7 +75,7 @@ def create_model(top_words, max_review_length, embedding_size):
 	#model.add(Dropout(0.2))
 	model.add(LSTM(100))
 	#model.add(Dropout(0.2))
-	model.add(Dense(1, activation='sigmoid'))
+	model.add(Dense(1, activation = 'sigmoid'))
 
 	return model
 
@@ -87,7 +101,7 @@ def generate_text(model, datasets):
 	scores = model.evaluate(datasets.x_test, datasets.y_test, verbose = 0)
 	print("Accuracy: %.2f%%" % (scores[1]*100))
 
-	return {}
+	return article("")
 
 def main():
 	"""Script entry point"""
@@ -111,9 +125,9 @@ def main():
 		'accuracy'
 	)
 
-	train_neural_network(model, datasets, 3, 64)
+	#train_neural_network(model, datasets, 3, 64)
 
-	generate_text(model, datasets)
+	#generate_text(model, datasets)
 
 if __name__ == "__main__":
 	main()
