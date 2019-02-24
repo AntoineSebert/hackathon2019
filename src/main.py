@@ -30,22 +30,6 @@ class article:
 	def __init__(self, html_content):
 		self.content = html_content
 
-class LinksParser(HTMLParser):
-	def __init__(self):
-		HTMLParser.__init__(self)
-		self.recording = 0
-		self.data = []
-	def handle_starttag(self, tag, attrs):
-		for (key, value) in attrs:
-			if key == 'class' and 'graf--p' in value:
-				#print(tag, '=', key, ':', value, ' ')
-				self.recording = 1
-			else:
-				self.recording = 0
-	def handle_data(self, data):
-		if self.recording == 1:
-			print('    ' + data)
-
 def get_input_file():
 	"""Get the filepath from the command line."""
 	parser = argparse.ArgumentParser(description = 'Generate texts from text datatset.')
@@ -64,19 +48,36 @@ def get_input_file():
 
 def load_data(file):
 	"""Extract the data from the file and return it as a list of objects."""
+	interesting_data = ""
+
+	class LinksParser(HTMLParser):
+		def __init__(self):
+			HTMLParser.__init__(self)
+			self.recording = 0
+			self.data = []
+		def handle_starttag(self, tag, attrs):
+			for (key, value) in attrs:
+				if key == 'class' and 'graf--p' in value:
+					self.recording = 1
+				else:
+					self.recording = 0
+		def handle_data(self, data):
+			if self.recording == 1:
+				nonlocal interesting_data
+				interesting_data += data
+
 	articles = []
 	parser = LinksParser()
 
 	limit = 0
 	for line in iter(lambda: file.readline(), ''):
-		if 1 < limit:
+		if 100 < limit:
 			break
 		limit += 1
 		article_as_json = json.loads(line)
 		parser.feed(article_as_json["content"])
-		print(parser.data)
-		print()
-		#articles.append(article())
+		articles.append(article(interesting_data))
+		interesting_data = ""
 
 	return articles
 
@@ -85,10 +86,12 @@ def create_datasets(articles, top_words, max_review_length):
 
 	(x_train, y_train), (x_test, y_test) = reuters.load_data(num_words = top_words, test_split=0.2)
 
+	"""
 	for article in range(0, int(len(articles) * 0.8)):
 		x_train.append(text.text_to_word_sequence(article.content))
 	for article in range(int(len(articles) * 0.8) + 1, len(articles)):
 		x_test.append(text.text_to_word_sequence(article.content))
+	"""
 
 	x_train = sequence.pad_sequences(x_train, maxlen = max_review_length)
 	x_test = sequence.pad_sequences(x_test, maxlen = max_review_length)
