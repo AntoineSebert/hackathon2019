@@ -86,25 +86,28 @@ def create_datasets(articles, top_words, max_review_length):
 
 	(x_train, y_train), (x_test, y_test) = reuters.load_data(num_words = top_words, test_split=0.2)
 
-	"""
-	for article in range(0, int(len(articles) * 0.8)):
-		x_train.append(text.text_to_word_sequence(article.content))
-	for article in range(int(len(articles) * 0.8) + 1, len(articles)):
-		x_test.append(text.text_to_word_sequence(article.content))
-	"""
+	# print elements
+
+	for article in articles:
+		np.append(x_train, text.text_to_word_sequence(article.content))
+	for article in articles:
+		np.append(x_test, text.text_to_word_sequence(article.content))
+
+	# print elements
 
 	x_train = sequence.pad_sequences(x_train, maxlen = max_review_length)
 	x_test = sequence.pad_sequences(x_test, maxlen = max_review_length)
 
-	# https://keras.io/preprocessing/text/
+	# print elements
 
 	return datasets_group(x_train, y_train, x_test, y_test)
 
 def create_model(top_words, max_review_length, embedding_size):
 	"""Create a model with the given parameters."""
+
 	model = Sequential()
 	model.add(LSTM(75)) # """, input_shape = (X.shape[1], X.shape[2])"""
-	model.add(Dense(units = 1, vocab_size = top_words, activation = 'softmax'))
+	model.add(Dense(units = 1, activation = 'softmax')) # , vocab_size = top_words
 
 	return model
 
