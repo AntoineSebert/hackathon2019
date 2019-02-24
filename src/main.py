@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 """This module generates stories from sample using deep learning."""
 
 import argparse
@@ -7,12 +9,12 @@ from html.parser import HTMLParser
 from html.entities import name2codepoint
 
 import numpy as np
-from keras.datasets import reuters
 from keras.models import Sequential
-from keras.layers import Dense, LSTM
-from keras.layers.embeddings import Embedding
-from keras.preprocessing import sequence
-from keras.preprocessing import text
+from keras.preprocessing import text, sequence
+from keras.preprocessing.text import Tokenizer
+from keras.layers import Dense, Dropout, LSTM, Bidirectional
+from keras.callbacks import ModelCheckpoint
+from keras.utils import np_utils
 
 class datasets_group:
 	x_train = {}
@@ -32,13 +34,14 @@ class article:
 
 def get_input_file():
 	"""Get the filepath from the command line."""
+
 	parser = argparse.ArgumentParser(description = 'Generate texts from text datatset.')
 	parser.add_argument(
 		"-f",
 		"--file",
 		nargs = '?',
 		default = 'dataset/medium-articles/test.json',
-		type = argparse.FileType('r'),
+		type = argparse.FileType('r', encoding="utf-8"),
 		dest = "file",
 		help = "use dataset in FILE"
 	)
@@ -48,8 +51,8 @@ def get_input_file():
 
 def load_data(file):
 	"""Extract the data from the file and return it as a list of objects."""
-	interesting_data = ""
 
+	interesting_data = ""
 	class LinksParser(HTMLParser):
 		def __init__(self):
 			HTMLParser.__init__(self)
@@ -71,7 +74,7 @@ def load_data(file):
 
 	limit = 0
 	for line in iter(lambda: file.readline(), ''):
-		if 100 < limit:
+		if 9 < limit:
 			break
 		limit += 1
 		article_as_json = json.loads(line)
@@ -84,50 +87,100 @@ def load_data(file):
 def create_datasets(articles, top_words, max_review_length):
 	"""Create the train and test datasets, each entry being limited in length."""
 
-	(x_train, y_train), (x_test, y_test) = reuters.load_data(num_words = top_words, test_split=0.2)
-
-	# print elements
-
+	raw_content = ""
 	for article in articles:
-		np.append(x_train, text.text_to_word_sequence(article.content))
-	for article in articles:
-		np.append(x_test, text.text_to_word_sequence(article.content))
+		raw_content += article.content
 
-	# print elements
+	# create tokenizer
+	indexer = text.Tokenizer(num_words=max_review_length, filters='"#$%&*+-/<=>@[\\]^_`{|}~\t\n', lower=False, split=' ', char_level=False)
 
-	x_train = sequence.pad_sequences(x_train, maxlen = max_review_length)
-	x_test = sequence.pad_sequences(x_test, maxlen = max_review_length)
+	# prepare tokenizer
+	indexer.fit_on_texts(raw_content)
 
-	# print elements
+	# break str into words
+	words_sequence = text.text_to_word_sequence(raw_content, filters='"#$%&*+-/<=>@[\\]^_`{|}~\t\n', lower=False, split=' ')
 
-	return datasets_group(x_train, y_train, x_test, y_test)
+	# assign indexes to words
+	word_index = indexer.word_index
+	print('Found %s unique tokens.' % len(word_index))
+	word_indices = dict((c, i) for i, c in enumerate(words_sequence))
+	indices_word = dict((i, c) for i, c in enumerate(words_sequence))
 
-def create_model(top_words, max_review_length, embedding_size):
+	print(words_sequence)
+
+	return datasets_group(words_sequence, len(word_index), words_sequence, {})
+
+def create_model(max_review_length, vocab, loss, optimizer, metrics):
 	"""Create a model with the given parameters."""
 
 	model = Sequential()
-	model.add(LSTM(75)) # """, input_shape = (X.shape[1], X.shape[2])"""
-	model.add(Dense(units = 1, activation = 'softmax')) # , vocab_size = top_words
-
-	return model
-
-def create_neural_network(top_words, max_review_length, embedding_size, loss, optimizer, metrics):
-	"""Create a neural network that takes a dataset of texts as input and generates texts based on the dataset."""
-	model = create_model(top_words, max_review_length, embedding_size)
+	model.add(Bidirectional(LSTM(128, input_shape=(max_review_length, vocab))))
+	model.add(Dropout(0.2))
+	model.add(Dense(units = 32, activation = 'softmax'))
 	model.compile(loss = 'categorical_crossentropy', optimizer = 'adam', metrics = ['accuracy'])
 
 	return model
 
-def train_neural_network(model, datasets, epochs, batch_size):
+def train_neural_network(model, datasets, epochs):
 	"""Train the neural network using the provided dataset."""
-	model.fit(datasets.x_train, (datasets.x_test, datasets.y_test), epochs = 100, verbose = 2)
 
-def generate_text(model, datasets):
+	model.fit(datasets.x_train, epochs, verbose = 2, batch_size=128)
+
+def generate_text(max_review_length, vocab, model, datasets, words_sequence):
 	"""Generate new text."""
-	scores = model.evaluate(datasets.x_test, datasets.y_test, verbose = 0)
-	print("Accuracy: %.2f%%" % (scores[1]*100))
+	"""
+	def generator(sentence_list, next_word_list, batch_size):
+		index = 0
+		while True:
+			x = np.zeros((batch_size, max_review_length), dtype=np.int32)
+			y = np.zeros((batch_size), dtype=np.int32)
+			for i in range(batch_size):
+				for t, w in enumerate(sentence_list[index]):
+					x[i, t, word_indices[w]] = 1
+				y[i, word_indices[next_word_list[index]]] = 1
+				index = index + 1
+				if index == len(sentence_list):
+					index = 0
+			yield x, y
 
-	return article("")
+	model.fit_generator(
+		generator(words_sequence, next_words, BATCH_SIZE),
+		steps_per_epoch=int(len(words_sequence)/BATCH_SIZE) + 1,
+		epochs=100
+	)
+"""
+	def sample(preds, temperature=1.0):
+		# helper function to sample an index from a probability array
+		preds = np.asarray(preds).astype('float64')
+		preds = np.log(preds) / temperature
+		exp_preds = np.exp(preds)
+		preds = exp_preds / np.sum(exp_preds)
+		probas = np.random.multinomial(1, preds, 1)
+		return np.argmax(probas)
+
+	generated = ''
+	sentence = "Test"
+	generated += sentence
+
+	print('----- Generating with seed: "' + sentence + '"')
+
+	for i in range(400):
+		x_pred = np.zeros((1, maxlen, len(chars)))
+		for t, char in enumerate(sentence):
+			x_pred[0, t, char_indices[char]] = 1.
+
+		preds = model.predict(x_pred, verbose=0)[0]
+		next_index = sample(preds, diversity)
+		next_char = indices_char[next_index]
+
+		generated += next_char
+		sentence = sentence[1:] + next_char
+
+		sys.stdout.write(next_char)
+		sys.stdout.flush()
+		print()
+
+	return ""
 
 def main():
 	"""Script entry point"""
@@ -138,21 +191,20 @@ def main():
 
 	top_words = 5000
 	max_review_length = 500
+	np.random.seed(1337)
 	datasets = create_datasets(articles, top_words, max_review_length)
 
-	np.random.seed(1337)
-	model = create_neural_network(
-		top_words,
+	model = create_model(
 		max_review_length,
-		32,
-		'binary_crossentropy',
+		datasets.y_train,
+		'sparse_categorical_crossentropy',
 		'adam',
 		'accuracy'
 	)
 
-	train_neural_network(model, datasets, 3, 64)
+	train_neural_network(model, datasets, 100)
 
-	#generate_text(model, datasets)
+	generate_text(max_review_length, datasets.y_train, model, datasets, datasets.x_test)
 
 if __name__ == "__main__":
 	main()
