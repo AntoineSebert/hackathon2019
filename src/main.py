@@ -58,7 +58,6 @@ def get_input_file():
 		nargs = '?',
 		default = 'dataset/medium-articles/train.json',
 		type = argparse.FileType('r'),
-		required = True,
 		dest = "file",
 		help = "use dataset in FILE"
 	)
