@@ -10,8 +10,8 @@ version : [3.6.8](https://www.python.org/downloads/release/python-368/)
 
 To check the installation & version :
 ```
-> python --version
-Python 3.6.8
+python --version
+> Python 3.6.8
 ```
 
 ### pip
@@ -24,8 +24,8 @@ https://pip.pypa.io/en/stable/installing/
 
 To check the installation & version :
 ```
-> pip --version
-pip 19.0.3
+pip --version
+> pip 19.0.3
 ```
 
 #### Python Packages Index
@@ -42,23 +42,29 @@ https://pipenv.readthedocs.io/en/latest/install/
 
 To check the installation & version :
 ```
-> pipenv --version
-pipenv, version 2018.11.26
+pipenv --version
+> pipenv, version 2018.11.26
 ```
 
 ### Libraries
 
-`> cd path/to/project`
-`> pipenv lock && pipenv sync`
+```
+cd path/to/project
+> pipenv lock && pipenv sync
+```
+
+## Dataset
+
+https://www.kaggle.com/kashnitsky/medium-articles
 
 ## Run project
 
-`> python src/main.py`
+```python src/main.py```
 
 ## Other commands
 
 Security checks
-`> pipenv check`
+```pipenv check```
 
 pylint
-`> pylint src/main.py`
+```pylint src/main.py```
